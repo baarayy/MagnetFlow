@@ -1,10 +1,19 @@
-package main
+package torrentfile
 
 import (
 	"io"
 
 	"github.com/jackpal/bencode-go"
 )
+
+type torrentFile struct {
+	Announce    string     `bencode:"announce"`
+	InfoHash    [20]byte   `bencode:"info_hash"`
+	pieceHashes [][20]byte `bencode:"piece_hashes"`
+	PieceLength int        `bencode:"piece_length"`
+	Length      int        `bencode:"length"`
+	Name        string     `bencode:"name"`
+}
 
 type bencodeInfo struct {
 	Pieces      string `bencode:"pieces"`
