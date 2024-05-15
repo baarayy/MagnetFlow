@@ -35,7 +35,7 @@ func TestSerialize(t *testing.T) {
 		},
 		"different pstr": {
 			input: &Handshake{
-				Pstr:     "BitTorrent protocol, but different",
+				Pstr:     "BitTorrent protocol, but cooler?",
 				InfoHash: [20]byte{134, 212, 200, 0, 36, 164, 105, 190, 76, 80, 188, 90, 16, 44, 247, 23, 128, 49, 0, 116},
 				PeerID:   [20]byte{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20},
 			},
