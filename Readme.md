@@ -1,4 +1,4 @@
-![MagnetFlow Logo](https://i.ibb.co/LP8fNWV/Infinitorrent.png)
+![MagnetFlow Logo](https://i.ibb.co/G781XYR/Untitled-design.jpg)
 
 designed to streamline your torrent downloading experience. With MagnetFlow, you can easily search for and download torrents, manage your downloads, and enjoy high-speed peer-to-peer file sharing.
 
