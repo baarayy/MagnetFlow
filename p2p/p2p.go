@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/sha1"
 	"fmt"
+	"log"
 	"magnetflow/client"
 	"magnetflow/message"
 	"magnetflow/peers"
@@ -114,4 +115,15 @@ func checkIntegrity(pw *pieceWork, buf []byte) error {
 		return fmt.Errorf("Piece %d failed integrity check", pw.index)
 	}
 	return nil
+}
+
+func (t *Torrent) startDownloadWorker(peer peers.Peer, workQueue chan *pieceWork, results chan *pieceResult) {
+	c, err := client.New(peer, t.InfoHash, t.PeerID)
+	if err != nil {
+		log.Printf("Could not handshake with %s. Disconnecting\n", peer)
+		return
+	}
+	defer c.Conn.Close()
+	log.Printf("Completed handshake with %s\n", peer)
+	
 }
