@@ -9,7 +9,7 @@ import (
 
 type Client struct {
 	Conn     net.Conn
-	choked   bool
+	Choked   bool
 	Bitfield bitfield.Bitfield
 	peer     peers.Peer
 	infoHash [20]byte
