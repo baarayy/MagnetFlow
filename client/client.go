@@ -20,3 +20,9 @@ func (c *Client) Read() (*message.Message, error) {
 	msg, err := message.Read(c.Conn)
 	return msg, err
 }
+
+func (c *Client) SendRequest(index, begin, length int) error {
+	req := message.FormatRequest(index, begin, length)
+	_, err := c.Conn.Write(req.Serialize())
+	return err
+}
