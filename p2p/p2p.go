@@ -1,6 +1,9 @@
 package p2p
 
 import (
+	"bytes"
+	"crypto/sha1"
+	"fmt"
 	"magnetflow/client"
 	"magnetflow/message"
 	"magnetflow/peers"
@@ -103,4 +106,12 @@ func attemptDownloadPiece(c *client.Client, pw *pieceWork) ([]byte, error) {
 		}
 	}
 	return state.buf, nil
+}
+
+func checkIntegrity(pw *pieceWork, buf []byte) error {
+	hash := sha1.Sum(buf)
+	if !bytes.Equal(hash[:], pw.hash[:]) {
+		return fmt.Errorf("Piece %d failed integrity check", pw.index)
+	}
+	return nil
 }
