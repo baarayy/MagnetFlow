@@ -1,5 +1,7 @@
 package message
 
+import "encoding/binary"
+
 type messageID uint8
 
 const (
@@ -17,4 +19,16 @@ const (
 type Message struct {
 	ID      messageID
 	payload []byte
+}
+
+func (m *Message) Serialize() []byte {
+	if m == nil {
+		return make([]byte, 0)
+	}
+	length := uint32(len(m.payload) + 1) // 1 byte for ID
+	buf := make([]byte, length+4)        // 4 bytes for length
+	binary.BigEndian.PutUint32(buf[0:4], length)
+	buf[4] = byte(m.ID)
+	copy(buf[5:], m.payload)
+	return buf
 }
