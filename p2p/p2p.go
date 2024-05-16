@@ -4,6 +4,7 @@ import (
 	"magnetflow/client"
 	"magnetflow/message"
 	"magnetflow/peers"
+	"time"
 )
 
 const MaxBloackSize = 1 << 14
@@ -68,4 +69,38 @@ func (state *pieceProgress) readMessage() error {
 		state.backlog--
 	}
 	return nil
+}
+
+func attemptDownloadPiece(c *client.Client, pw *pieceWork) ([]byte, error) {
+	state := pieceProgress{
+		index:  pw.index,
+		client: c,
+		buf:    make([]byte, pw.length),
+	}
+
+	c.Conn.SetDeadline(time.Now().Add(30 * time.Second))
+	defer c.Conn.SetDeadline(time.Time{})
+
+	for state.downloaded < pw.length {
+		if !state.client.Choked {
+			for state.backlog < MaxBackLog && state.requested < pw.length {
+				blockSize := MaxBloackSize
+
+				if pw.length-state.requested < blockSize {
+					blockSize = pw.length - state.requested
+				}
+				err := c.SendRequest(pw.index, state.requested, blockSize)
+				if err != nil {
+					return nil, err
+				}
+				state.backlog++
+				state.requested += blockSize
+			}
+		}
+		err := state.readMessage()
+		if err != nil {
+			return nil, err
+		}
+	}
+	return state.buf, nil
 }
