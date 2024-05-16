@@ -1,6 +1,9 @@
 package message
 
-import "encoding/binary"
+import (
+	"encoding/binary"
+	"io"
+)
 
 type messageID uint8
 
@@ -31,4 +34,27 @@ func (m *Message) Serialize() []byte {
 	buf[4] = byte(m.ID)
 	copy(buf[5:], m.payload)
 	return buf
+}
+
+func Read(r io.Reader) (*Message, error) {
+	lengthBuf := make([]byte, 4)
+	_, err := io.ReadFull(r, lengthBuf)
+	if err != nil {
+		return nil, err
+	}
+	length := binary.BigEndian.Uint32(lengthBuf)
+
+	if length == 0 {
+		return nil, nil
+	}
+	messageBuf := make([]byte, length)
+	_, err = io.ReadFull(r, messageBuf)
+	if err != nil {
+		return nil, err
+	}
+	m := &Message{
+		ID:      messageID(messageBuf[0]),
+		payload: messageBuf[1:],
+	}
+	return m, nil
 }
