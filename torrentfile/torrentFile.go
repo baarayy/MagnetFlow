@@ -14,24 +14,62 @@ import (
 const Port uint16 = 6881
 
 type TorrentFile struct {
-	Announce    string     `bencode:"announce"`
-	InfoHash    [20]byte   `bencode:"info_hash"`
-	pieceHashes [][20]byte `bencode:"piece_hashes"`
-	PieceLength int        `bencode:"piece_length"`
-	Length      int        `bencode:"length"`
-	Name        string     `bencode:"name"`
+	Announce    string
+	InfoHash    [20]byte
+	PieceHashes [][20]byte
+	PieceLength int
+	Length      int
+	Name        string
 }
 
 type bencodeInfo struct {
 	Pieces      string `bencode:"pieces"`
 	PieceLength int    `bencode:"piece length"`
-	length      int    `bencode:"length"`
+	Length      int    `bencode:"length"`
 	Name        string `bencode:"name"`
 }
 
 type bencodeTorrent struct {
-	Annnounce string      `bencode:"announce"`
-	Info      bencodeInfo `bencode:"info"`
+	Announce string      `bencode:"announce"`
+	Info     bencodeInfo `bencode:"info"`
+}
+
+func (t *TorrentFile) DownloadToFile(path string) error {
+	var peerID [20]byte
+	_, err := rand.Read(peerID[:])
+	if err != nil {
+		return err
+	}
+
+	peers, err := t.requestPeers(peerID, Port)
+	if err != nil {
+		return err
+	}
+
+	torrent := p2p.Torrent{
+		Peers:       peers,
+		PeerID:      peerID,
+		InfoHash:    t.InfoHash,
+		PieceHashes: t.PieceHashes,
+		PieceLength: t.PieceLength,
+		Length:      t.Length,
+		Name:        t.Name,
+	}
+	buf, err := torrent.Download()
+	if err != nil {
+		return err
+	}
+
+	outFile, err := os.Create(path)
+	if err != nil {
+		return err
+	}
+	defer outFile.Close()
+	_, err = outFile.Write(buf)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func Open(path string) (TorrentFile, error) {
@@ -84,52 +122,13 @@ func (bto *bencodeTorrent) toTorrentFile() (TorrentFile, error) {
 	if err != nil {
 		return TorrentFile{}, err
 	}
-
 	t := TorrentFile{
-		Announce:    bto.Annnounce,
+		Announce:    bto.Announce,
 		InfoHash:    infoHash,
-		pieceHashes: pieceHashes,
+		PieceHashes: pieceHashes,
 		PieceLength: bto.Info.PieceLength,
-		Length:      bto.Info.length,
+		Length:      bto.Info.Length,
 		Name:        bto.Info.Name,
 	}
 	return t, nil
-}
-
-func (t *TorrentFile) DownloadToFile(path string) error {
-	var peerID [20]byte
-	_, err := rand.Read(peerID[:])
-	if err != nil {
-		return err
-	}
-
-	peers, err := t.requestPeers(peerID, Port)
-	if err != nil {
-		return err
-	}
-
-	torrent := p2p.Torrent{
-		Peers:       peers,
-		PeerID:      peerID,
-		InfoHash:    t.InfoHash,
-		PieceHashes: t.pieceHashes,
-		PieceLength: t.PieceLength,
-		Length:      t.Length,
-		Name:        t.Name,
-	}
-	buf, err := torrent.Download()
-	if err != nil {
-		return err
-	}
-
-	outFile, err := os.Create(path)
-	if err != nil {
-		return err
-	}
-	defer outFile.Close()
-	_, err = outFile.Write(buf)
-	if err != nil {
-		return err
-	}
-	return nil
 }
