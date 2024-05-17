@@ -119,7 +119,8 @@ func checkIntegrity(pw *pieceWork, buf []byte) error {
 }
 
 func (t *Torrent) startDownloadWorker(peer peers.Peer, workQueue chan *pieceWork, results chan *pieceResult) {
-	c, err := client.New(peer, t.InfoHash, t.PeerID)
+	log.Println("Starting worker for %s\n", peer)
+	c, err := client.New(peer, t.PeerID, t.InfoHash)
 	if err != nil {
 		log.Printf("Could not handshake with %s. Disconnecting\n", peer)
 		return
@@ -149,6 +150,7 @@ func (t *Torrent) startDownloadWorker(peer peers.Peer, workQueue chan *pieceWork
 			return
 		}
 		c.SendHave(pw.index)
+		results <- &pieceResult{pw.index, buf}
 	}
 
 }
@@ -172,27 +174,33 @@ func (t *Torrent) Download() ([]byte, error) {
 	results := make(chan *pieceResult)
 
 	for index, hash := range t.PieceHashes {
+		log.Println("Queueing up piece", index)
 		length := t.calculatePieceSize(index)
 		workQueue <- &pieceWork{index, hash, length}
 	}
-
+	log.Println("Queueing up done")
 	for _, peer := range t.Peers {
+		log.Println("Starting worker for", peer)
 		go t.startDownloadWorker(peer, workQueue, results)
 	}
-
+	log.Println("Workers started")
 	buf := make([]byte, t.Length)
 	donePieces := 0
 
 	for donePieces < len(t.PieceHashes) {
+		log.Println("Waiting for results")
 		res := <-results
 		begin, end := t.calculateBoundsForPiece(res.index)
 		copy(buf[begin:end], res.buf)
 		donePieces++
-
+		if len(t.PieceHashes) == 0 {
+			log.Fatal("No pieces in torrent")
+		}
 		percent := float64(donePieces) / float64(len(t.PieceHashes)) * 100
 		numWorkers := runtime.NumGoroutine() - 1 // 1 for the main thread
 		log.Printf("%f%% complete. %d workers.\n", percent, numWorkers)
 	}
+	log.Println("Download complete")
 	close(workQueue)
 	return buf, nil
 }
