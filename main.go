@@ -1,12 +1,22 @@
 package main
 
-import "os"
+import (
+	"log"
+	"magnetflow/torrentfile"
+	"os"
+)
 
 func main() {
-	file, err := os.Open(os.Args[1])
+	inPath, outPath := os.Args[1], os.Args[2]
+	tf, err := torrentfile.Open(inPath)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
-	defer file.Close()
+
+	err = tf.DownloadToFile(outPath)
+
+	if err != nil {
+		log.Fatal(err)
+	}
 
 }
