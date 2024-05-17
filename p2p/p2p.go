@@ -125,8 +125,29 @@ func (t *Torrent) startDownloadWorker(peer peers.Peer, workQueue chan *pieceWork
 	}
 	defer c.Conn.Close()
 	log.Printf("Completed handshake with %s\n", peer)
-	
+
 	c.SendUnchoke()
 	c.SendInterested()
-	
+
+	for pw := range workQueue {
+		if !c.Bitfield.HasPiece(pw.index) {
+			workQueue <- pw
+			continue
+		}
+
+		buf, err := attemptDownloadPiece(c, pw)
+		if err != nil {
+			log.Println("Error downloading piece:", err)
+			workQueue <- pw
+			return
+		}
+		err = checkIntegrity(pw, buf)
+		if err != nil {
+			log.Println("Error, Integrity check failed piece:", err)
+			workQueue <- pw
+			return
+		}
+		c.SendHave(pw.index)
+	}
+
 }
