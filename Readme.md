@@ -15,7 +15,7 @@ During the development of the MagnetFlow project, several key concepts and techn
 
 ## Installation
 
-### Clone the Repository
+Follow these instructions:
 
 ```bash
 
