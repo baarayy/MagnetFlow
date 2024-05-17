@@ -101,3 +101,15 @@ func (c *Client) sendHave(index int) error {
 	_, err := c.Conn.Write(msg.Serialize())
 	return err
 }
+
+func (c *Client) SendInterested() error {
+	msg := message.Message{ID: message.MsgInterested}
+	_, err := c.Conn.Write(msg.Serialize())
+	return err
+}
+
+func (c *Client) SendNotInterested() error {
+	msg := message.Message{ID: message.MsgNotInterested}
+	_, err := c.Conn.Write(msg.Serialize())
+	return err
+}
