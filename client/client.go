@@ -3,7 +3,6 @@ package client
 import (
 	"bytes"
 	"fmt"
-	"log"
 	"magnetflow/bitfield"
 	"magnetflow/handshake"
 	"magnetflow/message"
@@ -92,21 +91,18 @@ func recvBitfield(conn net.Conn) (bitfield.Bitfield, error) {
 }
 
 func (c *Client) SendUnchoke() error {
-	log.Println("Unchoking", c.peer)
 	msg := message.Message{ID: message.MsgUnchoke}
 	_, err := c.Conn.Write(msg.Serialize())
 	return err
 }
 
 func (c *Client) SendHave(index int) error {
-	log.Println("Sending have", index, "to", c.peer)
 	msg := message.FormatHave(index)
 	_, err := c.Conn.Write(msg.Serialize())
 	return err
 }
 
 func (c *Client) SendInterested() error {
-	log.Println("Sending interested to", c.peer)
 	msg := message.Message{ID: message.MsgInterested}
 	_, err := c.Conn.Write(msg.Serialize())
 	return err
