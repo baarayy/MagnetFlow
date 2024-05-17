@@ -1,6 +1,17 @@
 ![MagnetFlow Logo](https://i.ibb.co/JnGbN6H/Untitled-design.jpg)
 
 A simple BitTorrent client made as a side project for educational purposes.
+During the development of the MagnetFlow project, several key concepts and techniques were learned and applied. This document highlights the main areas of learning:
+
+##### 1. Parsing a Bencoded File.
+
+##### 2. Processing Pieces of the Torrent and Hashing Them.
+
+##### 3. Getting Trackers and Finding Peers.
+
+##### 4. Establishing the Handshake Between Peers.
+
+##### 5. Understanding How P2P Works.
 
 ## Installation
 
