@@ -89,3 +89,15 @@ func recvBitfield(conn net.Conn) (bitfield.Bitfield, error) {
 
 	return msg.Payload, nil
 }
+
+func (c *Client) SendUnchoke() error {
+	msg := message.Message{ID: message.MsgUnchoke}
+	_, err := c.Conn.Write(msg.Serialize())
+	return err
+}
+
+func (c *Client) sendHave(index int) error {
+	msg := message.FormatHave(index)
+	_, err := c.Conn.Write(msg.Serialize())
+	return err
+}
