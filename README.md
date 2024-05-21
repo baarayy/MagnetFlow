@@ -14,7 +14,7 @@ During the development of the MagnetFlow project, several key concepts and techn
 ##### 5. Understanding How P2P Works.
 
 ## Demo 
-[![Watch the video](https://i.ibb.co/rd2vz72/thumnail.png)](https://streamable.com/nowhoe)
+[![Watch the video](https://i.ibb.co/rd2vz72/thumnail.png)](https://streamable.com/e0ihye)
 
 
 ## Installation
