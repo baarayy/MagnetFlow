@@ -8,7 +8,6 @@ import (
 	"magnetflow/client"
 	"magnetflow/message"
 	"magnetflow/peers"
-	"runtime"
 	"time"
 )
 
@@ -190,10 +189,13 @@ func (t *Torrent) Download() ([]byte, error) {
 			log.Fatal("No pieces in torrent")
 		}
 		percent := float64(donePieces) / float64(len(t.PieceHashes)) * 100
-		numWorkers := runtime.NumGoroutine() - 1 // 1 for the main thread
-		log.Printf("%f%% complete. %d workers.\n", percent, numWorkers)
+		darkYellow := "\033[38;5;94m"
+		reset := "\033[0m"
+		log.Printf(darkYellow+"%f%% complete.\n"+reset, percent)
 	}
-	log.Println("Download complete")
+	green := "\033[32m"
+	reset := "\033[0m"
+	log.Println(green + "Download complete" + reset)
 	close(workQueue)
 	return buf, nil
 }
